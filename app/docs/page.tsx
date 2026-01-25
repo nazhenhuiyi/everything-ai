@@ -11,9 +11,9 @@ export default function DocsIndex() {
                 {docs.map((doc) => (
                     <li key={doc.slug} className="border border-gray-200 dark:border-gray-700 p-4 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-colors">
                         <Link href={`/docs/${doc.slug}`} className="block">
-                            <h2 className="text-xl font-semibold capitalize">{doc.slug.replace(/-/g, ' ')}</h2>
-                            {doc.meta.title && <p className="text-gray-600 dark:text-gray-400 mt-1">{doc.meta.title}</p>}
-                            {doc.meta.description && <p className="text-sm text-gray-500 dark:text-gray-500 mt-2">{doc.meta.description}</p>}
+                            <h2 className="text-xl font-semibold">{doc.meta.title || doc.slug.replace(/-/g, ' ')}</h2>
+                            {doc.meta.title && <p className="text-sm text-gray-500 dark:text-gray-500 mt-1 capitalize">{doc.slug.replace(/-/g, ' ')}</p>}
+                            {doc.meta.description && <p className="text-sm text-gray-400 dark:text-gray-500 mt-2">{doc.meta.description}</p>}
                         </Link>
                     </li>
                 ))}
