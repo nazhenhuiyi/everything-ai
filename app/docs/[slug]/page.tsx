@@ -10,12 +10,34 @@ import GithubSlugger from 'github-slugger';
 import React from 'react';
 import Alert from '@/components/markdown/Alert';
 import MarkdownImage from '@/components/markdown/Image';
+import { Metadata } from 'next';
 
 export async function generateStaticParams() {
     const slugs = getDocSlugs();
     return slugs.map((slug) => ({
         slug,
     }));
+}
+
+export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
+    const { slug } = await params;
+    const doc = getDocBySlug(slug);
+
+    if (!doc) {
+        return {
+            title: '未找到文档',
+        };
+    }
+
+    return {
+        title: doc.meta.title || slug.replace(/-/g, ' '),
+        description: doc.meta.description || `关于 ${doc.meta.title || slug} 的深度拆解与探索。`,
+        openGraph: {
+            title: doc.meta.title,
+            description: doc.meta.description,
+            type: 'article',
+        },
+    };
 }
 
 export default async function DocPage({ params }: { params: Promise<{ slug: string }> }) {

@@ -1,5 +1,11 @@
 import Link from 'next/link';
 import { getAllDocs } from '@/lib/docs';
+import { Metadata } from 'next';
+
+export const metadata: Metadata = {
+    title: "档案库",
+    description: "探索 Everything AI 的知识档案库，涵盖物理、工程、海洋学等多个领域的深度拆解。",
+};
 
 export default function DocsIndex() {
     const docs = getAllDocs();
