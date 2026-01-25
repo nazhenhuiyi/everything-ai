@@ -4,11 +4,17 @@
 :root {
   --background: #ffffff;
   --foreground: #171717;
+  --accent-neon-blue: #4cc9f0;
+  --accent-vivid-pink: #f72585;
+  --accent-cyber-yellow: #fee440;
 }
 
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
+  --color-neon-blue: var(--accent-neon-blue);
+  --color-vivid-pink: var(--accent-vivid-pink);
+  --color-cyber-yellow: var(--accent-cyber-yellow);
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
   --font-serif: var(--font-serif);
@@ -19,6 +25,29 @@
     --background: #0a0a0a;
     --foreground: #ededed;
   }
+}
+
+/* Utility for Sharp/Skewed Edges */
+.skew-edge-right {
+  clip-path: polygon(0 0, 100% 0, 95% 100%, 0% 100%);
+}
+
+.skew-edge-left {
+  clip-path: polygon(5% 0, 100% 0, 100% 100%, 0% 100%);
+}
+
+.sharp-cut-br {
+  clip-path: polygon(0 0, 100% 0, 100% calc(100% - 20px), calc(100% - 20px) 100%, 0 100%);
+}
+
+.layer-overlap {
+  position: relative;
+  z-index: 10;
+}
+
+.layer-under {
+  position: absolute;
+  z-index: 0;
 }
 
 body {
