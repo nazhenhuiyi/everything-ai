@@ -1,8 +1,25 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Everything AI
 
-## Getting Started
+这是一个基于 [Next.js](https://nextjs.org) 的项目。
 
-First, run the development server:
+## 贡献指南
+
+参与贡献的方式如下：
+
+1. 下载代码仓库
+2. 下载安装 [Antigravity](https://antigravity.google)
+3. 登录 google 账号
+4. 给 AI 输入 `解释一下 飞机`
+5. 观察 AI 的输出，如果 AI 输出了 `docs/` 目录下的文件，新开一个对话
+
+## 相关链接
+
+- [Antigravity 官网](https://antigravity.google)
+- [Antigravity 文档](https://antigravity.google/docs)
+
+## 开始使用
+
+首先，运行开发服务器：
 
 ```bash
 npm run dev
@@ -14,17 +31,4 @@ pnpm dev
 bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
-
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
-
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
-
-## Learn More
-
-To learn more about Next.js, take a look at the following resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+打开 [http://localhost:3000](http://localhost:3000) 在浏览器中查看结果。
