@@ -16,6 +16,7 @@
 
 - [Antigravity 官网](https://antigravity.google)
 - [Antigravity 文档](https://antigravity.google/docs)
+- [代码仓库](https://github.com/nazhenhuiyi/everything-ai)
 
 ## 开始使用
 

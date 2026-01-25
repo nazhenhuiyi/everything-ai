@@ -152,7 +152,7 @@ export default function Home() {
             </blockquote>
             <div className="mt-12">
               <Link
-                href="https://github.com/zilinchen/everything-ai"
+                href="https://github.com/nazhenhuiyi/everything-ai/issues"
                 target="_blank"
                 className="inline-flex items-center gap-2 px-8 py-3 bg-zinc-900 text-white font-bold uppercase tracking-widest hover:bg-neon-blue transition-all dark:bg-zinc-100 dark:text-zinc-900 dark:hover:bg-vivid-pink dark:hover:text-white"
               >
@@ -167,7 +167,10 @@ export default function Home() {
       <footer className="mx-6 md:mx-12 py-8 border-t border-zinc-200 dark:border-zinc-800 flex flex-col md:flex-row justify-between items-center text-[10px] font-bold uppercase tracking-widest text-zinc-400 relative">
         <div className="absolute top-0 right-12 w-24 h-1 bg-gradient-to-r from-neon-blue via-vivid-pink to-cyber-yellow"></div>
         <div>© 2026 Everything AI Collective</div>
-        <div className="mt-4 md:mt-0">Built for the next generation of thinkers</div>
+        <div className="mt-4 md:mt-0 flex gap-4">
+          <Link href="https://github.com/nazhenhuiyi/everything-ai" target="_blank" className="hover:text-neon-blue transition-colors">GitHub</Link>
+          <span>Built for the next generation of thinkers</span>
+        </div>
       </footer>
     </div>
   );
