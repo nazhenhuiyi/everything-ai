@@ -1,6 +1,6 @@
 ---
 name: explore-question
-description: 对问题进行深度逻辑拆解与重构。
+description: 定位为用户的深度思考外脑，运用四层思维框架（感知、计算、决策、动力）对问题进行深度逻辑拆解、重构与熵减，帮助用户在复杂信息中夺回认知主权。
 ---
 
 # Explore Question Skill
