@@ -4,21 +4,48 @@ import matter from 'gray-matter';
 
 const thinkDirectory = path.join(process.cwd(), 'think');
 
-export function getThinkSlugs() {
-  if (!fs.existsSync(thinkDirectory)) {
-    return [];
+function getAllMdFiles(dir: string): string[] {
+  let results: string[] = [];
+  if (!fs.existsSync(dir)) return results;
+  const items = fs.readdirSync(dir);
+  for (const item of items) {
+    const fullPath = path.join(dir, item);
+    const stat = fs.statSync(fullPath);
+    if (stat.isDirectory()) {
+      results = results.concat(getAllMdFiles(fullPath));
+    } else if (item.endsWith('.md')) {
+      results.push(fullPath);
+    }
   }
-  return fs.readdirSync(thinkDirectory)
-    .filter(file => file.endsWith('.md'))
-    .map(file => file.replace(/\.md$/, ''));
+  return results;
 }
 
-export function getThinkBySlug(slug: string) {
-  // Handle URL decoding in case slug contains non-ASCII characters (often happens with Chinese filenames)
-  const decodedSlug = decodeURIComponent(slug);
-  const fullPath = path.join(thinkDirectory, `${decodedSlug}.md`);
+export function getThinkSlugs() {
+  const files = getAllMdFiles(thinkDirectory);
+  return files.map(file => {
+    const relativePath = path.relative(thinkDirectory, file);
+    return relativePath.replace(/\.md$/, '').split(path.sep);
+  });
+}
+
+function findMdFile(dir: string, slugParts: string[]): string | null {
+  const possiblePath = path.join(dir, ...slugParts) + '.md';
+  if (fs.existsSync(possiblePath)) {
+    return possiblePath;
+  }
+  return null;
+}
+
+export function getThinkBySlug(slug: string | string[]) {
+  // Normalize slug to array
+  const slugArray = Array.isArray(slug) ? slug : [slug];
   
-  if (!fs.existsSync(fullPath)) {
+  // Handle URL decoding
+  const decodedSlugArray = slugArray.map(part => decodeURIComponent(part));
+  
+  const fullPath = findMdFile(thinkDirectory, decodedSlugArray);
+  
+  if (!fullPath || !fs.existsSync(fullPath)) {
       return null;
   }
 
@@ -34,7 +61,7 @@ export function getThinkBySlug(slug: string) {
   }
 
   return {
-    slug,
+    slug: decodedSlugArray.join('/'),
     meta: data,
     content,
   };
