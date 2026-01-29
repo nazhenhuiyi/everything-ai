@@ -1,3 +1,6 @@
+---
+chat_session: /Users/zilin/.gemini/tmp/274e824eefd3de90b3a491b5ea8cf80e8d6d7882fddd5ea78f161281806be43c/chats/session-2026-01-29T07-17-05d297a0.json
+---
 # 深度拆解：人类如何才能寻找到幸福？
 
 这是一个典型的**虚构性/价值观问题 (Type 4)**。幸福不是一个放在某处等待被发现的物理实体，而是一种主观构建的心理状态。
