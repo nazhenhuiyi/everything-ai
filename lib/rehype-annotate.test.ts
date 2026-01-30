@@ -103,4 +103,17 @@ describe('rehypeAnnotate', () => {
 
         expect(String(file)).toBe(expected);
     });
+
+    it('should match fuzzy text (ignoring punctuation)', async () => {
+        // Mock cleaning behavior: anchor has punctuations removed
+        const annotations = [createAnnotation('1815年印尼坦博拉', '1')];
+        const input = '<p>1815年，印尼坦博拉火山爆发。</p>';
+        const expected = '<p><span data-annotation-index="0" class="annotation-highlight">1815年，印尼坦博拉</span>火山爆发。</p>';
+
+        const file = await processor()
+            .use(rehypeAnnotate, { annotations })
+            .process(input);
+
+        expect(String(file)).toBe(expected);
+    });
 });
