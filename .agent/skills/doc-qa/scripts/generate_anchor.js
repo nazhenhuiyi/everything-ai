@@ -18,20 +18,36 @@ function getInput() {
   });
 }
 
+function stripMarkdown(text) {
+  return text
+    // Remove bold/italic markers
+    .replace(/(\*\*|__)(.*?)\1/g, '$2')
+    .replace(/(\*|_)(.*?)\1/g, '$2')
+    // Remove inline code
+    .replace(/`(.*?)`/g, '$1')
+    // Remove links [text](url) -> text
+    .replace(/\[(.*?)\]\(.*?\)/g, '$1')
+    // Remove images ![text](url) -> text
+    .replace(/!\[(.*?)\]\(.*?\)/g, '$1')
+    // Remove HTML tags if any
+    .replace(/<[^>]*>/g, '')
+    // Collapse excess whitespace
+    .replace(/\s+/g, ' ')
+    .trim();
+}
+
 function generateAnchor(text) {
   if (!text || !text.trim()) {
     return { hash: '', anchor_text: '' };
   }
 
-  // Normalize text: remove markdown artifacts if possible, collapse whitespace
-  const normalized = text.trim().replace(/\s+/g, ' ');
+  // Use raw-ish normalized text for the hash to maintain stability relative to the source
+  const rawNormalized = text.trim().replace(/\s+/g, ' ');
+  const hash = crypto.createHash('sha256').update(rawNormalized).digest('hex').substring(0, 16);
 
-  // Generate Hash (SHA-256, then truncate to 16 chars for brevity but collision resistance)
-  const hash = crypto.createHash('sha256').update(normalized).digest('hex').substring(0, 16);
-
-  // Generate readable anchor text (first 64 chars)
-  // We keep punctuation for better readability and matching, but still truncate
-  const anchorText = normalized.substring(0, 64).trim();
+  // Strip Markdown for the anchor_text to match what the user sees in the browser
+  const cleanText = stripMarkdown(text);
+  const anchorText = cleanText.substring(0, 64).trim();
 
   return {
     hash: hash,
