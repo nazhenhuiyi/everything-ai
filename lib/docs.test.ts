@@ -221,7 +221,7 @@ A`
         const annoName = 'anno-auto.md';
 
         const quoteContent = `
-> [!quote] quote title
+> [!quote] 原文片段
 > This is the **bold** text that should be extracted as anchor.
 `;
         const fileContent = `---

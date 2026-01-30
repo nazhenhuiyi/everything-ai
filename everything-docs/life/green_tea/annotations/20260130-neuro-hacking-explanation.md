@@ -3,7 +3,7 @@ source_doc: /Users/zilin/agent-projects/everything-ai/everything-docs/life/green
 source_line_start: 57
 source_line_end: 57
 source_hash: df6741dad0095000
-source_anchor: 这种神奇的配比让饮用者进入一种“警觉的平静”状态
+source_anchor: The Neuro-hacking：绿茶是极少数同时含有咖啡因（兴奋剂）和L-茶氨酸（镇静剂）的物质。这种神奇的配比让饮用者进入
 created_at: 2026-01-30
 tags: [绿茶, 神经黑客, 咖啡因, L-茶氨酸, 心理健康]
 ---

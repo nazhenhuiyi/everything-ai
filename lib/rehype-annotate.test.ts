@@ -116,4 +116,162 @@ describe('rehypeAnnotate', () => {
 
         expect(String(file)).toBe(expected);
     });
+
+
+    it('should match multiple annotations in the same paragraph', async () => {
+        const annotations = [
+            createAnnotation('first part', '1'),
+            createAnnotation('second part', '2')
+        ];
+        const input = '<p>This is the first part and this is the second part.</p>';
+        const expected = '<p>This is the <span data-annotation-index="0" class="annotation-highlight">first part</span> and this is the <span data-annotation-index="1" class="annotation-highlight">second part</span>.</p>';
+
+        const file = await processor()
+            .use(rehypeAnnotate, { annotations })
+            .process(input);
+
+        expect(String(file)).toBe(expected);
+    });
+
+    it('should match across multiple nested tags', async () => {
+        const annotations = [createAnnotation('Nested Highlight', '1')];
+        const input = '<p>This is a <strong><em>Nested Highlight</em></strong> test.</p>';
+        const expected = '<p>This is a <strong><em><span data-annotation-index="0" class="annotation-highlight">Nested Highlight</span></em></strong> test.</p>';
+
+        const file = await processor()
+            .use(rehypeAnnotate, { annotations })
+            .process(input);
+
+        expect(String(file)).toBe(expected);
+    });
+
+    it('should match text spanning across a tag boundary', async () => {
+        const annotations = [createAnnotation('partially bold', '1')];
+        const input = '<p>This is <strong>partially</strong> bold text.</p>';
+        // The logic applies highlights to each text node. 
+        // "partially bold" -> "partially" (in strong) and " bold" (outside)
+        const expected = '<p>This is <strong><span data-annotation-index="0" class="annotation-highlight">partially</span></strong><span data-annotation-index="0" class="annotation-highlight"> bold</span> text.</p>';
+
+        const file = await processor()
+            .use(rehypeAnnotate, { annotations })
+            .process(input);
+
+        expect(String(file)).toBe(expected);
+    });
+
+    it('should match text inside an anchor (link) tag', async () => {
+        const annotations = [createAnnotation('clickable link', '1')];
+        const input = '<p>Check this <a href="#">clickable link</a> now.</p>';
+        const expected = '<p>Check this <a href="#"><span data-annotation-index="0" class="annotation-highlight">clickable link</span></a> now.</p>';
+
+        const file = await processor()
+            .use(rehypeAnnotate, { annotations })
+            .process(input);
+
+        expect(String(file)).toBe(expected);
+    });
+
+    it('should ignore text inside script and style tags', async () => {
+        const annotations = [createAnnotation('secret', '1')];
+        const input = '<p>visible</p><script>const secret = "true";</script><style>.secret { color: red; }</style>';
+        // Should not highlight inside script/style
+        const expected = '<p>visible</p><script>const secret = "true";</script><style>.secret { color: red; }</style>';
+
+        const file = await processor()
+            .use(rehypeAnnotate, { annotations })
+            .process(input);
+
+        expect(String(file)).toBe(expected);
+    });
+
+    it('should only highlight inside specified container tags', async () => {
+        const annotations = [createAnnotation('ignored', '1'), createAnnotation('matched', '2')];
+        const input = '<footer>ignored</footer><p>matched</p>';
+        const expected = '<footer>ignored</footer><p><span data-annotation-index="1" class="annotation-highlight">matched</span></p>';
+
+        const file = await processor()
+            .use(rehypeAnnotate, { annotations })
+            .process(input);
+
+        expect(String(file)).toBe(expected);
+    });
+
+    it('should ignore annotations with length less than 2', async () => {
+        const annotations = [createAnnotation('a', '1'), createAnnotation('aa', '2')];
+        const input = '<p>a aa</p>';
+        // 'a' should be ignored, 'aa' should be matched
+        const expected = '<p>a <span data-annotation-index="1" class="annotation-highlight">aa</span></p>';
+
+        const file = await processor()
+            .use(rehypeAnnotate, { annotations })
+            .process(input);
+
+        expect(String(file)).toBe(expected);
+    });
+
+    it('should match multiple occurrences of the same annotation', async () => {
+        const annotations = [createAnnotation('test', '0')];
+        const input = '<p>test and test and test</p>';
+        const expected = '<p><span data-annotation-index="0" class="annotation-highlight">test</span> and <span data-annotation-index="0" class="annotation-highlight">test</span> and <span data-annotation-index="0" class="annotation-highlight">test</span></p>';
+
+        const file = await processor()
+            .use(rehypeAnnotate, { annotations })
+            .process(input);
+
+        expect(String(file)).toBe(expected);
+    });
+
+    it('should handle fuzzy matching with varying whitespace', async () => {
+        const annotations = [createAnnotation('multi word anchor', '0')];
+        // Input has multiple spaces and a newline
+        const input = '<p>multi   word\nanchor</p>';
+        const expected = '<p><span data-annotation-index="0" class="annotation-highlight">multi   word\nanchor</span></p>';
+
+        const file = await processor()
+            .use(rehypeAnnotate, { annotations })
+            .process(input);
+
+        expect(String(file)).toBe(expected);
+    });
+
+    it('should match fuzzy text with interjected punctuation (noise)', async () => {
+        const annotations = [createAnnotation('坦博拉火山爆发', '0')];
+        // Text has a comma/noise in between
+        const input = '<p>坦博拉，火山爆发于1815年。</p>';
+        const expected = '<p><span data-annotation-index="0" class="annotation-highlight">坦博拉，火山爆发</span>于1815年。</p>';
+
+        const file = await processor()
+            .use(rehypeAnnotate, { annotations })
+            .process(input);
+
+        expect(String(file)).toBe(expected);
+    });
+
+    it('should not re-match text that is already highlighted', async () => {
+        const annotations = [
+            createAnnotation('inner', '0'),
+            createAnnotation('outer inner', '1')
+        ];
+        // If 'inner' is matched first or 'outer inner' is matched.
+        // The implementation sorts by length: 'outer inner' (11) > 'inner' (5).
+        // So 'outer inner' should be matched first.
+        const input = '<p>outer inner</p>';
+        const expected = '<p><span data-annotation-index="1" class="annotation-highlight">outer inner</span></p>';
+
+        const file = await processor()
+            .use(rehypeAnnotate, { annotations })
+            .process(input);
+
+        expect(String(file)).toBe(expected);
+        
+        // Now test the other way: if a smaller one is already there (simulated by processing twice)
+        // But the current impl re-gathers pointers and skips nodes with 'annotation-highlight'
+        const file2 = await processor()
+            .use(rehypeAnnotate, { annotations: [createAnnotation('inner', '0')] })
+            .use(rehypeAnnotate, { annotations: [createAnnotation('inner', '2')] })
+            .process(input);
+        
+        // It should match once, and then the second pass should find nothing because 'inner' is already inside a span.
+        expect(String(file2)).toBe('<p>outer <span data-annotation-index="0" class="annotation-highlight">inner</span></p>');
+    });
 });
