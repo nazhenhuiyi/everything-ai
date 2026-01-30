@@ -69,7 +69,6 @@ Task: 当用户输入一个词条时，你需要经历一个严密的“思考-�
 *   **Visual Writing**: 文字要有画面感，让读者脑海中浮现出结构图或动态流程。
 *   **Contextual Depth**: 每一个事物都不是孤立存在的。**必须**挖掘它的前世今生（History）以及它对世界的改变（Impact）。
 *   **Wonder**: 保持专业但充满好奇心的语调，展现对造物（或自然/文明）之美的敬畏。
-*   **Visual-First**: “一张好图胜过千言万语”。在核心机制处必须有高质量的技术插画。
 
 ### Output Instruction
 
@@ -82,7 +81,7 @@ Task: 当用户输入一个词条时，你需要经历一个严密的“思考-�
     title: [Title of the document]
     id: [Unique Identifier]
     type: [invention | phenomenon | concept | life | theory | system | person]
-    tags: [tag1, tag2, tag3]
+    tags: [相关标签]
     summary: [One-sentence summary for preview cards]
     created_at: YYYY-MM-DD
     ---
@@ -92,4 +91,3 @@ Task: 当用户输入一个词条时，你需要经历一个严密的“思考-�
 **CRITICAL: 您必须严格使用 `view_file` 读取到的 Reference 文件作为最终内容的 Markdown 结构模版。**
 
 Reference 文件中包含了完整的标题、Alerts、章节标题和逻辑结构。
-**配图建议**：在每个主要章节的“核心原理”部分，至少插入一张技术图解。图片统一保存到 `public/docs/images/` 目录下。
