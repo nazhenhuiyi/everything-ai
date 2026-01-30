@@ -53,27 +53,31 @@ export default function Annotation({ annotation, children }: AnnotationProps) {
             </HoverCard>
 
             <Sheet open={isOpen} onOpenChange={setIsOpen} modal={false}>
-                <SheetContent className="w-full sm:max-w-xl overflow-y-auto dark:border-zinc-800 border-zinc-200">
-                    <SheetHeader className="mb-6">
-                        <div className="text-xs font-bold text-zinc-400 uppercase tracking-widest mb-2">Knowledge Card</div>
-                        <SheetTitle className="text-2xl font-serif">{annotation.question}</SheetTitle>
-                        {annotation.tags && (
-                            <SheetDescription>
-                                <div className="flex gap-2 pt-2">
-                                    {annotation.tags.map(tag => (
-                                        <span key={tag} className="text-xs bg-zinc-100 dark:bg-zinc-800 px-2 py-1 rounded text-zinc-500">#{tag}</span>
-                                    ))}
-                                </div>
-                            </SheetDescription>
-                        )}
-                    </SheetHeader>
+                <SheetContent className="w-full sm:max-w-xl p-0 dark:border-zinc-800 border-zinc-200">
+                    <ScrollArea className="h-full">
+                        <div className="p-6">
+                            <SheetHeader className="mb-6">
+                                <div className="text-xs font-bold text-zinc-400 uppercase tracking-widest mb-2">Knowledge Card</div>
+                                <SheetTitle className="text-2xl font-serif">{annotation.question}</SheetTitle>
+                                {annotation.tags && (
+                                    <SheetDescription>
+                                        <div className="flex gap-2 pt-2">
+                                            {annotation.tags.map(tag => (
+                                                <span key={tag} className="text-xs bg-zinc-100 dark:bg-zinc-800 px-2 py-1 rounded text-zinc-500">#{tag}</span>
+                                            ))}
+                                        </div>
+                                    </SheetDescription>
+                                )}
+                            </SheetHeader>
 
-                    <div className="prose prose-zinc dark:prose-invert max-w-none
-                        prose-headings:font-serif
-                        prose-p:leading-7 prose-p:text-zinc-700 dark:prose-p:text-zinc-300
-                        prose-li:text-zinc-700 dark:prose-li:text-zinc-300">
-                        <ReactMarkdown>{annotation.answer}</ReactMarkdown>
-                    </div>
+                            <div className="prose prose-zinc dark:prose-invert max-w-none
+                                prose-headings:font-serif
+                                prose-p:leading-7 prose-p:text-zinc-700 dark:prose-p:text-zinc-300
+                                prose-li:text-zinc-700 dark:prose-li:text-zinc-300">
+                                <ReactMarkdown>{annotation.answer}</ReactMarkdown>
+                            </div>
+                        </div>
+                    </ScrollArea>
                 </SheetContent>
             </Sheet>
         </>

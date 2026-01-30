@@ -1,8 +1,4 @@
 'use client';
-
-import Image from 'next/image';
-import { useState } from 'react';
-
 interface MarkdownImageProps extends React.ImgHTMLAttributes<HTMLImageElement> {
     src?: string;
     alt?: string;
@@ -15,11 +11,13 @@ export default function MarkdownImage({ src, alt, ...props }: MarkdownImageProps
     // For simplicity in this docs starter, we'll assume most images are local or standard URLs
     // and use a responsive wrapper.
 
+    const finalSrc = src.replace('../public', '');
+
     return (
         <figure className="group my-12 not-prose">
             <div className="relative overflow-hidden rounded-sm shadow-xl bg-gray-100 dark:bg-gray-800">
                 <img
-                    src={src}
+                    src={finalSrc}
                     alt={alt || 'Documentation image'}
                     className="w-full h-auto object-cover block"
                     loading="lazy"
