@@ -8,12 +8,29 @@ export function getDocSlugs() {
   if (!fs.existsSync(docsDirectory)) {
     return [];
   }
-  return fs.readdirSync(docsDirectory)
-    .filter(file => file.endsWith('.md'))
-    .map(file => file.replace(/\.md$/, ''));
+
+  const getAllFiles = (dirPath: string, arrayOfFiles: string[] = []) => {
+      const files = fs.readdirSync(dirPath);
+      files.forEach((file) => {
+          const fullPath = path.join(dirPath, file);
+          if (fs.statSync(fullPath).isDirectory()) {
+              if (file !== 'annotations') {
+                  getAllFiles(fullPath, arrayOfFiles);
+              }
+          } else {
+              if (file.endsWith('.md')) {
+                  arrayOfFiles.push(path.relative(docsDirectory, fullPath));
+              }
+          }
+      });
+      return arrayOfFiles;
+  };
+
+  return getAllFiles(docsDirectory).map(file => file.replace(/\.md$/, ''));
 }
 
 export function getDocBySlug(slug: string) {
+  // slug can be "military/aircraft-carrier"
   const fullPath = path.join(docsDirectory, `${slug}.md`);
   
   if (!fs.existsSync(fullPath)) {
@@ -57,11 +74,6 @@ export function getAnnotationsForDoc(slug: string): Annotation[] {
     const files = fs.readdirSync(annotationsDir).filter(file => file.endsWith('.md'));
     const annotations: Annotation[] = [];
 
-    // Optimize: Could map slug to file, but for now linear scan is fine for small scale
-    // Or we rely on the user-defined 'source_doc' field in the annotation.
-    // Let's assume the annotation file naming or metadata links it.
-    // The SKILL says: source_doc: [absolute path].
-    
     // We need to resolve the absolute path of the current doc to match.
     const currentDocAbsPath = path.join(docsDirectory, `${slug}.md`);
 
@@ -72,7 +84,17 @@ export function getAnnotationsForDoc(slug: string): Annotation[] {
 
         // Check if this annotation belongs to the current doc
         // The source_doc field is an absolute path.
+        // We also check basename match to handle file moves where annotation source_doc hasn't been updated yet.
+        let isMatch = false;
         if (data.source_doc === currentDocAbsPath) {
+            isMatch = true;
+        } else if (data.source_doc && path.basename(data.source_doc) === path.basename(currentDocAbsPath)) {
+             // Fallback: if filename matches (ignoring directory), we accept it.
+             // This assumes filenames are unique across folders, which is reasonable here.
+             isMatch = true;
+        }
+
+        if (isMatch) {
              // Extract Question and Answer from content
             // The content format is: ## 提问 \n ... \n ## 回答 \n ...
             // Let's parse it simply.

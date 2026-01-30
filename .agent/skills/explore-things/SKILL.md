@@ -80,7 +80,18 @@ Task: 当用户输入一个词条时，你需要经历一个严密的“思考-�
 
 ### Output Instruction
 
-请将生成的内容保存到 `everything-docs` 目录下的 Markdown 文件中（文件名需英文化，例如 `bicycle.md`）。
+请将生成的内容保存到 `everything-docs` 目录下的合适子目录中（例如 `everything-docs/tech/`, `everything-docs/science/` 等），文件名需英文化，例如 `bicycle/content.md`。
+
+**CRITICAL: Format Requirements**
+1.  **YAML Frontmatter**: 文件开头必须包含 metadata。
+    ```yaml
+    ---
+    title: [Title of the document]
+    tags: [tag1, tag2, tag3]
+    created_at: YYYY-MM-DD
+    ---
+    ```
+2.  **H1 Title**: Frontmatter 之后必须包含 Markdown H1 标题。
 
 **CRITICAL: 您必须严格使用 `view_file` 读取到的 Reference 文件作为最终内容的 Markdown 结构模版。**
 

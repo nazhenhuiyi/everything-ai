@@ -9,13 +9,14 @@ import { Metadata } from 'next';
 export async function generateStaticParams() {
     const slugs = getDocSlugs();
     return slugs.map((slug) => ({
-        slug,
+        slug: slug.split('/'),
     }));
 }
 
-export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
+export async function generateMetadata({ params }: { params: Promise<{ slug: string[] }> }): Promise<Metadata> {
     const { slug } = await params;
-    const doc = getDocBySlug(slug);
+    const slugString = slug.join('/');
+    const doc = getDocBySlug(slugString);
 
     if (!doc) {
         return {
@@ -24,8 +25,8 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
     }
 
     return {
-        title: doc.meta.title || slug.replace(/-/g, ' '),
-        description: doc.meta.description || `关于 ${doc.meta.title || slug} 的深度拆解与探索。`,
+        title: doc.meta.title || slugString.replace(/-/g, ' '),
+        description: doc.meta.description || `关于 ${doc.meta.title || slugString} 的深度拆解与探索。`,
         openGraph: {
             title: doc.meta.title,
             description: doc.meta.description,
@@ -34,10 +35,11 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
     };
 }
 
-export default async function DocPage({ params }: { params: Promise<{ slug: string }> }) {
+export default async function DocPage({ params }: { params: Promise<{ slug: string[] }> }) {
     const { slug } = await params;
-    const doc = getDocBySlug(slug);
-    const annotations = getAnnotationsForDoc(slug);
+    const slugString = slug.join('/');
+    const doc = getDocBySlug(slugString);
+    const annotations = getAnnotationsForDoc(slugString);
 
     if (!doc) {
         return (
