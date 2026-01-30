@@ -1,4 +1,4 @@
-import React from 'react';
+// ... imports
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import remarkUnwrapImages from 'remark-unwrap-images';
@@ -9,12 +9,17 @@ import 'katex/dist/katex.min.css';
 import remarkAlerts from '@/lib/remark-alerts';
 import Alert from '@/components/markdown/Alert';
 import MarkdownImage from '@/components/markdown/Image';
+import CopyButton from '@/components/markdown/CopyButton';
+import Popover from '@/components/ui/Popover';
+import rehypeAnnotate from '@/lib/rehype-annotate';
+import { Annotation } from '@/lib/docs';
 
 interface MarkdownRendererProps {
     content: string;
+    annotations?: Annotation[];
 }
 
-export default function MarkdownRenderer({ content }: MarkdownRendererProps) {
+export default function MarkdownRenderer({ content, annotations = [] }: MarkdownRendererProps) {
     return (
         <div className="prose prose-lg prose-zinc dark:prose-invert max-w-none
             prose-headings:font-serif prose-headings:font-normal
@@ -35,19 +40,25 @@ export default function MarkdownRenderer({ content }: MarkdownRendererProps) {
         ">
             <ReactMarkdown
                 remarkPlugins={[remarkGfm, remarkAlerts, remarkUnwrapImages, remarkMath]}
-                rehypePlugins={[rehypeSlug, rehypeKatex]}
+                rehypePlugins={[
+                    rehypeSlug,
+                    rehypeKatex,
+                    [rehypeAnnotate, { annotations }]
+                ]}
                 components={{
                     code({ inline, className, children, ...props }: any) {
                         const match = /language-(\w+)/.exec(className || '')
+                        const codeString = String(children).replace(/\n$/, '');
                         //@ts-ignore
                         return !inline && match ? (
                             <div className="relative group not-prose my-10 font-mono text-sm">
-                                <div className="absolute top-0 right-0 p-2 z-10 opacity-0 group-hover:opacity-100 transition-opacity">
-                                    <div className="bg-zinc-800 text-zinc-400 px-2 py-1 rounded text-xs">
+                                <div className="absolute top-2 right-2 flex items-center gap-2 z-10">
+                                    <div className="bg-zinc-800 text-zinc-400 px-2 py-1 rounded text-xs opacity-0 group-hover:opacity-100 transition-opacity">
                                         {match[1]}
                                     </div>
+                                    <CopyButton content={codeString} />
                                 </div>
-                                <pre className="!bg-zinc-900 !text-zinc-300 rounded p-6 overflow-x-auto shadow-inner">
+                                <pre className="!bg-zinc-900 !text-zinc-300 rounded-lg p-6 overflow-x-auto shadow-inner border border-zinc-800">
                                     <code className={className} {...props}>
                                         {children}
                                     </code>
@@ -62,6 +73,39 @@ export default function MarkdownRenderer({ content }: MarkdownRendererProps) {
                     img: (props: any) => (
                         <MarkdownImage {...props} />
                     ),
+                    span: (props: any) => {
+                        // Check for annotation index
+                        if (props['data-annotation-index'] !== undefined) {
+                            const index = parseInt(props['data-annotation-index'], 10);
+                            const annotation = annotations[index];
+                            if (annotation) {
+                                return (
+                                    <Popover
+                                        trigger={props.children}
+                                        content={
+                                            <div className="space-y-3 font-sans">
+                                                <div className="text-xs font-bold text-zinc-400 uppercase tracking-widest">Knowledge Card</div>
+                                                <div className="font-semibold text-zinc-900 dark:text-zinc-100">
+                                                    {annotation.question}
+                                                </div>
+                                                <div className="text-sm text-zinc-600 dark:text-zinc-300 leading-relaxed">
+                                                    <ReactMarkdown>{annotation.answer}</ReactMarkdown>
+                                                </div>
+                                                {annotation.tags && (
+                                                    <div className="flex gap-2 pt-2">
+                                                        {annotation.tags.map(tag => (
+                                                            <span key={tag} className="text-xs bg-zinc-100 dark:bg-zinc-800 px-2 py-1 rounded text-zinc-500">#{tag}</span>
+                                                        ))}
+                                                    </div>
+                                                )}
+                                            </div>
+                                        }
+                                    />
+                                );
+                            }
+                        }
+                        return <span {...props} />
+                    },
                     blockquote: (props: any) => {
                         const { children, ...rest } = props;
                         const alertType = props['data-alert-type'];

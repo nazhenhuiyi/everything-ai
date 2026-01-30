@@ -2,6 +2,8 @@
 source_doc: /Users/zilin/agent-projects/everything-ai/everything-docs/punk_style.md
 source_line_start: 17
 source_line_end: 17
+source_hash: dfeb496d56151328
+source_anchor: ：它宣称“你不需要十年的音乐学院训练，只要学会三个和弦，你现在就可以上台”。通过大幅降低
 created_at: 2026-01-30
 tags: [Chinese Punk, Music History, Chinese Rock]
 ---

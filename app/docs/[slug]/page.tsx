@@ -3,7 +3,7 @@ import TableOfContents from '@/components/markdown/TableOfContents';
 import GithubSlugger from 'github-slugger';
 import React from 'react';
 import MarkdownRenderer from '@/components/markdown/MarkdownRenderer';
-import { getDocBySlug, getDocSlugs } from '@/lib/docs';
+import { getDocBySlug, getDocSlugs, getAnnotationsForDoc } from '@/lib/docs';
 import { Metadata } from 'next';
 
 export async function generateStaticParams() {
@@ -37,6 +37,7 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
 export default async function DocPage({ params }: { params: Promise<{ slug: string }> }) {
     const { slug } = await params;
     const doc = getDocBySlug(slug);
+    const annotations = getAnnotationsForDoc(slug);
 
     if (!doc) {
         return (
@@ -93,7 +94,7 @@ export default async function DocPage({ params }: { params: Promise<{ slug: stri
                                 [&_ul]:mt-4 [&_ol]:mt-4
                                 hover:prose-a:text-yellow-600 transition-colors
                             ">
-                                <MarkdownRenderer content={doc.content} />
+                                <MarkdownRenderer content={doc.content} annotations={annotations} />
                             </div>
 
                             {/* Footer / Author section could go here */}

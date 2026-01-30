@@ -67,6 +67,60 @@ export function getThinkBySlug(slug: string | string[]) {
   };
 }
 
+// ... imports
+export interface Annotation {
+    source_anchor: string;
+    source_hash?: string;
+    question: string;
+    answer: string;
+    tags?: string[];
+    created_at?: string;
+}
+
+export function getAnnotationsForThink(slug: string | string[]): Annotation[] {
+    const slugArray = Array.isArray(slug) ? slug : [slug];
+    const decodedSlugArray = slugArray.map(part => decodeURIComponent(part));
+    const fullPath = findMdFile(thinkDirectory, decodedSlugArray);
+
+    if (!fullPath || !fs.existsSync(fullPath)) {
+        return [];
+    }
+
+    const docDir = path.dirname(fullPath);
+    const annotationsDir = path.join(docDir, 'annotations');
+    
+    if (!fs.existsSync(annotationsDir)) {
+        return [];
+    }
+
+    const files = fs.readdirSync(annotationsDir).filter(file => file.endsWith('.md'));
+    const annotations: Annotation[] = [];
+
+    for (const file of files) {
+        const annotationPath = path.join(annotationsDir, file);
+        const fileContents = fs.readFileSync(annotationPath, 'utf8');
+        const { data, content } = matter(fileContents);
+
+        // Check source_doc strict equality
+        if (data.source_doc === fullPath) {
+             const questionMatch = content.match(/## (?:提问|Question)\s+([\s\S]*?)(?=## (?:回答|Answer)|$)/);
+             const answerMatch = content.match(/## (?:回答|Answer)\s+([\s\S]*?)(?=---|$)/);
+
+            if (questionMatch && answerMatch) {
+                 annotations.push({
+                    source_anchor: data.source_anchor || '',
+                    source_hash: data.source_hash,
+                    question: questionMatch[1].trim(),
+                    answer: answerMatch[1].trim(),
+                    tags: data.tags,
+                    created_at: data.created_at
+                });
+            }
+        }
+    }
+    return annotations;
+}
+
 export function getAllThinks() {
   const slugs = getThinkSlugs();
   const thinks = slugs.map((slug) => getThinkBySlug(slug)).filter((doc) => doc !== null);

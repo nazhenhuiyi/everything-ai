@@ -3,44 +3,16 @@ import TableOfContents from '@/components/markdown/TableOfContents';
 import GithubSlugger from 'github-slugger';
 import React from 'react';
 import MarkdownRenderer from '@/components/markdown/MarkdownRenderer';
-import { getThinkBySlug, getThinkSlugs } from '@/lib/think';
+import { getThinkBySlug, getThinkSlugs, getAnnotationsForThink } from '@/lib/think';
 import { Metadata } from 'next';
 
-export async function generateStaticParams() {
-    const slugs = getThinkSlugs();
-    return slugs.map((slug) => ({
-        slug,
-    }));
-}
-
-export async function generateMetadata({ params }: { params: Promise<{ slug: string[] }> }): Promise<Metadata> {
-    const { slug } = await params;
-    const doc = getThinkBySlug(slug);
-
-    if (!doc) {
-        return {
-            title: '未找到文档',
-        };
-    }
-
-    // Normalize string representation for title
-    const slugStr = Array.isArray(slug) ? slug.join(' ') : slug;
-
-    return {
-        title: doc.meta.title || slugStr,
-        description: doc.meta.description || `关于 ${doc.meta.title || slugStr} 的深度思考。`,
-        openGraph: {
-            title: doc.meta.title,
-            description: doc.meta.description,
-            type: 'article',
-        },
-    };
-}
+// ... (existing exports)
 
 export default async function ThinkPage({ params }: { params: Promise<{ slug: string[] }> }) {
     const { slug } = await params;
     // Handle potential URL encoding issues in the slug itself if passed from URL
     const doc = getThinkBySlug(slug);
+    const annotations = getAnnotationsForThink(slug);
 
     if (!doc) {
         return (
@@ -97,7 +69,7 @@ export default async function ThinkPage({ params }: { params: Promise<{ slug: st
                             )}
 
                             {/* Content */}
-                            <MarkdownRenderer content={doc.content} />
+                            <MarkdownRenderer content={doc.content} annotations={annotations} />
 
                             {/* Footer / Author section */}
                             <div className="mt-20 pt-10 border-t border-zinc-200 dark:border-zinc-800 flex items-center justify-between text-zinc-400 text-sm font-sans uppercase tracking-widest">
@@ -111,8 +83,8 @@ export default async function ThinkPage({ params }: { params: Promise<{ slug: st
                         <div className="mb-4 text-xs font-bold uppercase tracking-widest text-zinc-400">On this page</div>
                         <TableOfContents headings={headings} />
                     </aside>
-                </div >
-            </div >
-        </div >
+                </div>
+            </div>
+        </div>
     );
 }
