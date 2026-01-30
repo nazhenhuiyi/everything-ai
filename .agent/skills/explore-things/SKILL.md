@@ -26,10 +26,6 @@ Task: 当用户输入一个词条时，你需要经历一个严密的“思考-�
 **Step 3: 创意综合与输出 (Creative Synthesis)**
 将经过严密查证的事实，转化为生动、易懂但绝不肤浅的文字。
 
-**Step 4: 视觉转译与配图 (Visual Translation & Illustration)**
-*   识别文中“隐藏的复杂性”高峰点。
-*   根据 `references/illustrator.md` 的策略，为核心机制或结构设计技术图解。
-*   调用 `generate_image` 生成图片并嵌入文档。
 
 ### 分类与参考 (Classification & References)
 
@@ -63,9 +59,6 @@ Task: 当用户输入一个词条时，你需要经历一个严密的“思考-�
     *   **Examples**: 爱因斯坦, 福尔摩斯, 乔布斯, 马里奥, 诸葛亮...
     *   Reference: `references/type-person.md` (重点关注核心驱动力与时代印记)
 
-8.  **Illustrator: 技术配图指南**
-    *   **Focus**: 剖面图, 爆炸分解图, 流程原理图...
-    *   Reference: `references/illustrator.md`
 
 ### 核心原则 (Core Principles)
 
@@ -87,7 +80,10 @@ Task: 当用户输入一个词条时，你需要经历一个严密的“思考-�
     ```yaml
     ---
     title: [Title of the document]
+    id: [Unique Identifier]
+    type: [invention | phenomenon | concept | life | theory | system | person]
     tags: [tag1, tag2, tag3]
+    summary: [One-sentence summary for preview cards]
     created_at: YYYY-MM-DD
     ---
     ```

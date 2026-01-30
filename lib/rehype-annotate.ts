@@ -5,7 +5,11 @@ import { Annotation } from '@/lib/docs';
 // and wrap them in a <span data-annotation-index="...">
 export default function rehypeAnnotate(options: { annotations: Annotation[] }) {
     return (tree: any) => {
-        if (!options.annotations || options.annotations.length === 0) return;
+        if (!options.annotations || options.annotations.length === 0) {
+            // console.log('[rehype-annotate] No annotations provided.');
+            return;
+        }
+
 
         visit(tree, 'text', (node: any, index: number | null | undefined, parent: any) => {
             if (typeof index !== 'number' || !parent) return;
@@ -43,6 +47,8 @@ export default function rehypeAnnotate(options: { annotations: Annotation[] }) {
                 const idx = value.indexOf(annot.source_anchor);
                 if (idx !== -1) {
                      // Found a match!
+
+
                      // Split the node.
                      const before = value.substring(0, idx);
                      const match = value.substring(idx, idx + annot.source_anchor.length);

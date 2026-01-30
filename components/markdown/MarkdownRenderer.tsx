@@ -1,4 +1,5 @@
 // ... imports
+import React from 'react';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import remarkUnwrapImages from 'remark-unwrap-images';
@@ -17,13 +18,28 @@ import Annotation from '@/components/markdown/Annotation';
 interface MarkdownRendererProps {
     content: string;
     annotations?: AnnotationType[];
+    frontmatter?: {
+        title?: string;
+        tags?: string[];
+        summary?: string;
+        created_at?: string;
+        [key: string]: any;
+    };
 }
 
-export default function MarkdownRenderer({ content, annotations = [] }: MarkdownRendererProps) {
+export default function MarkdownRenderer({ content, annotations = [], frontmatter }: MarkdownRendererProps) {
+    // If we have a title in frontmatter, we likely want to render a custom header
+    // and strip the first H1 from the markdown content to avoid duplication.
+    const hasTitle = frontmatter?.title;
+    const finalContent = React.useMemo(() => {
+        if (!hasTitle) return content;
+        // Strip the first H1 (# Title) if it exists at the start of the file, allowing for whitespace/newlines
+        return content.replace(/^\s*#\s+[^\n]+(?:\n|$)/, '').trim();
+    }, [content, hasTitle]);
+
     return (
         <div className="prose prose-lg prose-zinc dark:prose-invert max-w-none
             prose-headings:font-serif prose-headings:font-normal
-            prose-h1:text-6xl prose-h1:leading-tight prose-h1:mb-8 prose-h1:text-center prose-h1:tracking-tight
             prose-h2:text-3xl prose-h2:mt-16 prose-h2:mb-6 prose-h2:text-zinc-800 dark:prose-h2:text-zinc-100
             prose-h3:text-xl prose-h3:mt-10 prose-h3:mb-4 prose-h3:font-sans prose-h3:font-bold prose-h3:uppercase prose-h3:tracking-wide prose-h3:text-zinc-500 dark:prose-h3:text-zinc-500
             prose-p:leading-8 prose-p:text-xl prose-p:text-zinc-600 dark:prose-p:text-zinc-400 prose-p:font-serif
@@ -38,6 +54,48 @@ export default function MarkdownRenderer({ content, annotations = [] }: Markdown
             [&_ul]:mt-4 [&_ol]:mt-4
             hover:prose-a:text-yellow-600 transition-colors
         ">
+            {frontmatter && (
+                <header className="not-prose mb-20 text-center max-w-3xl mx-auto">
+                    {/* Meta Row: Date & Tags */}
+                    <div className="flex flex-wrap items-center justify-center gap-4 mb-6 text-xs font-bold font-sans uppercase tracking-[0.2em] text-zinc-400">
+                        {frontmatter.created_at && (
+                            <time className="shrink-0">
+                                {new Date(frontmatter.created_at).toLocaleDateString('zh-CN', { year: 'numeric', month: 'long', day: 'numeric' })}
+                            </time>
+                        )}
+
+                        {frontmatter.tags && frontmatter.tags.length > 0 && (
+                            <>
+                                <span className="text-zinc-300">/</span>
+                                <div className="flex gap-3">
+                                    {frontmatter.tags.map(tag => (
+                                        <span key={tag} className="hover:text-zinc-800 dark:hover:text-zinc-200 transition-colors cursor-pointer">
+                                            {tag}
+                                        </span>
+                                    ))}
+                                </div>
+                            </>
+                        )}
+                    </div>
+
+                    {/* Title */}
+                    {frontmatter.title && (
+                        <h1 className="text-5xl md:text-6xl lg:text-7xl font-serif font-medium text-zinc-900 dark:text-zinc-100 mb-8 leading-tight tracking-tight">
+                            {frontmatter.title}
+                        </h1>
+                    )}
+
+                    {/* Summary */}
+                    {frontmatter.summary && (
+                        <div className="relative">
+                            <div className="text-2xl md:text-3xl font-serif italic text-zinc-500 dark:text-zinc-400 leading-relaxed px-8">
+                                {frontmatter.summary}
+                            </div>
+                            <div className="w-24 h-1 bg-yellow-400 mx-auto mt-10 rounded-full opacity-60"></div>
+                        </div>
+                    )}
+                </header>
+            )}
             <ReactMarkdown
                 remarkPlugins={[remarkGfm, remarkAlerts, remarkUnwrapImages, remarkMath]}
                 rehypePlugins={[
@@ -114,7 +172,7 @@ export default function MarkdownRenderer({ content, annotations = [] }: Markdown
                     }
                 }}
             >
-                {content}
+                {finalContent}
             </ReactMarkdown>
         </div>
     );

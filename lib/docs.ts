@@ -65,72 +65,64 @@ export interface Annotation {
 }
 
 export function getAnnotationsForDoc(slug: string): Annotation[] {
-    const annotationsDir = path.join(docsDirectory, 'annotations');
-    
-    if (!fs.existsSync(annotationsDir)) {
-        return [];
-    }
-
-    const files = fs.readdirSync(annotationsDir).filter(file => file.endsWith('.md'));
     const annotations: Annotation[] = [];
-
-    // We need to resolve the absolute path of the current doc to match.
     const currentDocAbsPath = path.join(docsDirectory, `${slug}.md`);
 
-    for (const file of files) {
-        const fullPath = path.join(annotationsDir, file);
-        const fileContents = fs.readFileSync(fullPath, 'utf8');
-        const { data, content } = matter(fileContents);
+    // Define directories to check
+    const dirsToCheck = [
+        path.join(docsDirectory, 'annotations'), // Global
+        path.join(path.dirname(currentDocAbsPath), 'annotations') // Local
+    ];
 
-        // Check if this annotation belongs to the current doc
-        // The source_doc field is an absolute path.
-        // We also check basename match to handle file moves where annotation source_doc hasn't been updated yet.
-        let isMatch = false;
-        if (data.source_doc === currentDocAbsPath) {
-            isMatch = true;
-        } else if (data.source_doc && path.basename(data.source_doc) === path.basename(currentDocAbsPath)) {
-             // Fallback: if filename matches (ignoring directory), we accept it.
-             // This assumes filenames are unique across folders, which is reasonable here.
-             isMatch = true;
+    // Deduplicate directories
+    const uniqueDirs = [...new Set(dirsToCheck)];
+
+    for (const annotationsDir of uniqueDirs) {
+        if (!fs.existsSync(annotationsDir)) {
+            continue;
         }
 
-        if (isMatch) {
-             // Extract Question and Answer from content
-            // The content format is: ## 提问 \n ... \n ## 回答 \n ...
-            // Let's parse it simply.
-            const questionMatch = content.match(/## (?:提问|Question)\s+([\s\S]*?)(?=## (?:回答|Answer)|$)/);
-            const answerMatch = content.match(/## (?:回答|Answer)\s+([\s\S]*?)(?=---|$)/);
+        const files = fs.readdirSync(annotationsDir).filter(file => file.endsWith('.md'));
+
+        for (const file of files) {
+            const fullPath = path.join(annotationsDir, file);
+            const fileContents = fs.readFileSync(fullPath, 'utf8');
+            const { data, content } = matter(fileContents);
+
+            // Check if this annotation belongs to the current doc
+            let isMatch = false;
+            if (data.source_doc === currentDocAbsPath) {
+                isMatch = true;
+            } else if (data.source_doc && path.basename(data.source_doc) === path.basename(currentDocAbsPath)) {
+                 isMatch = true;
+            }
+
+            if (!isMatch) continue;
+
+            const questionMatch = content.match(/## .*?(?:提问|Question)\s+([\s\S]*?)(?=## .*?(?:回答|Answer)|$)/i);
+            const answerMatch = content.match(/## .*?(?:回答|Answer)\s+([\s\S]*?)(?=---|$)/i);
 
             if (questionMatch && answerMatch) {
                 let anchor = data.source_anchor || '';
 
-                // Fallback: If no anchor in frontmatter, try to extract from the "Original Fragment" quote
                 if (!anchor) {
                     try {
                         const quoteMatch = content.match(/> (?:\[!.*?\] )?.*?原文片段.*?:?\s*\n((?:>.*\n?)+)/);
                         if (quoteMatch) {
                              let rawQuote = quoteMatch[1];
-                             // Remove '>' prefixes
                              rawQuote = rawQuote.replace(/^> ?/gm, '').trim();
-
-                             // Split by common markdown formatting to find the longest plain text segment
-                             // This is necessary because rehype-annotate matches against simple text nodes,
-                             // and markdown formatting breaks text nodes.
-                             // We split by bold (**...**), italic (*...*), code (`...`), links ([...](...)), images (![...](...))
                              const parts = rawQuote.split(/(\*\*.*?\*\*|\*.*?\*|`.*?`|\[.*?\]\(.*?\)|!\[.*?\]\(.*?\))/g);
                              
                              let longest = '';
                              for (const part of parts) {
-                                 // Check if it's likely a formatted part (starts with reserved char)
                                  if (/^(\*\*|\*|`|\[|!)/.test(part)) continue;
-                                 
                                  const clean = part.trim();
                                  if (clean.length > longest.length) {
                                      longest = clean;
                                  }
                              }
                              
-                             if (longest.length > 5) { // Minimum length check
+                             if (longest.length > 5) {
                                  anchor = longest;
                              }
                         }
@@ -150,6 +142,8 @@ export function getAnnotationsForDoc(slug: string): Annotation[] {
             }
         }
     }
+
+    
     return annotations;
 }
 

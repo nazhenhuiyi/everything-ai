@@ -41,6 +41,8 @@ export default async function DocPage({ params }: { params: Promise<{ slug: stri
     const doc = getDocBySlug(slugString);
     const annotations = getAnnotationsForDoc(slugString);
 
+
+
     if (!doc) {
         return (
             <div className="max-w-4xl mx-auto py-20 px-4 text-center">
@@ -96,7 +98,7 @@ export default async function DocPage({ params }: { params: Promise<{ slug: stri
                                 [&_ul]:mt-4 [&_ol]:mt-4
                                 hover:prose-a:text-yellow-600 transition-colors
                             ">
-                                <MarkdownRenderer content={doc.content} annotations={annotations} />
+                                <MarkdownRenderer content={doc.content} annotations={annotations} frontmatter={doc.meta} />
                             </div>
 
                             {/* Footer / Author section could go here */}
