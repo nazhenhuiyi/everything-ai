@@ -1,52 +1,32 @@
-'use client';
+"use client"
 
-import React, { useState, useRef, useEffect } from 'react';
+import * as React from "react"
+import * as PopoverPrimitive from "@radix-ui/react-popover"
 
-interface PopoverProps {
-    trigger: React.ReactNode;
-    content: React.ReactNode;
-}
+import { cn } from "@/lib/utils"
 
-export default function Popover({ trigger, content }: PopoverProps) {
-    const [isOpen, setIsOpen] = useState(false);
-    const containerRef = useRef<HTMLSpanElement>(null);
+const Popover = PopoverPrimitive.Root
 
-    // Close on click outside
-    useEffect(() => {
-        function handleClickOutside(event: MouseEvent) {
-            if (containerRef.current && !containerRef.current.contains(event.target as Node)) {
-                setIsOpen(false);
-            }
-        }
-        document.addEventListener('mousedown', handleClickOutside);
-        return () => {
-            document.removeEventListener('mousedown', handleClickOutside);
-        };
-    }, []);
+const PopoverTrigger = PopoverPrimitive.Trigger
 
-    return (
-        <span className="relative inline-block" ref={containerRef}>
-            <span
-                className="cursor-pointer border-b-2 border-yellow-300 dark:border-yellow-700 bg-yellow-50 dark:bg-yellow-900/20 hover:bg-yellow-100 dark:hover:bg-yellow-900/40 transition-colors rounded-sm px-0.5"
-                onClick={() => setIsOpen(!isOpen)}
-                onMouseEnter={() => setIsOpen(true)}
-            // We don't close on mouse leave immediately to allow interaction, but for simplicity let's stick to click or hover-intent. 
-            // For "clean" experience, let's keep it simple: Click toggles, Hover opens, Leave closes? 
-            // Creating a stable hover popover without libraries is tricky (layout thrashing etc).
-            // Let's rely on Click for stability and "pinned" state, or Hover.
-            // Given the user wants "Annotation", clicking to "pin" the card while reading is good.
-            // Let's start with Click OR Hover.
-            // Actually, let's just use click for mobile friendliness and stability.
-            >
-                {trigger}
-            </span>
-            {isOpen && (
-                <div className="absolute left-1/2 -translate-x-1/2 bottom-full mb-2 w-80 max-w-[90vw] z-50">
-                    <div className="bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 shadow-2xl rounded-xl p-4 text-left animate-in fade-in zoom-in-95 duration-200">
-                        {content}
-                    </div>
-                </div>
+const PopoverContent = React.forwardRef<
+    React.ElementRef<typeof PopoverPrimitive.Content>,
+    React.ComponentPropsWithoutRef<typeof PopoverPrimitive.Content>
+>(({ className, align = "center", sideOffset = 4, ...props }, ref) => (
+    <PopoverPrimitive.Portal>
+        <PopoverPrimitive.Content
+            ref={ref}
+            align={align}
+            sideOffset={sideOffset}
+            className={cn(
+                "z-50 w-72 rounded-md border bg-popover p-4 text-popover-foreground shadow-md outline-none data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95 data-[side=bottom]:slide-in-from-top-2 data-[side=left]:slide-in-from-right-2 data-[side=right]:slide-in-from-left-2 data-[side=top]:slide-in-from-bottom-2",
+                "bg-white dark:bg-zinc-900 border-zinc-200 dark:border-zinc-800", // Custom overrides
+                className
             )}
-        </span>
-    );
-}
+            {...props}
+        />
+    </PopoverPrimitive.Portal>
+))
+PopoverContent.displayName = PopoverPrimitive.Content.displayName
+
+export { Popover, PopoverTrigger, PopoverContent }

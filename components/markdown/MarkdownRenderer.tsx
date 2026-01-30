@@ -10,13 +10,13 @@ import remarkAlerts from '@/lib/remark-alerts';
 import Alert from '@/components/markdown/Alert';
 import MarkdownImage from '@/components/markdown/Image';
 import CopyButton from '@/components/markdown/CopyButton';
-import Popover from '@/components/ui/Popover';
 import rehypeAnnotate from '@/lib/rehype-annotate';
-import { Annotation } from '@/lib/docs';
+import { Annotation as AnnotationType } from '@/lib/docs';
+import Annotation from '@/components/markdown/Annotation';
 
 interface MarkdownRendererProps {
     content: string;
-    annotations?: Annotation[];
+    annotations?: AnnotationType[];
 }
 
 export default function MarkdownRenderer({ content, annotations = [] }: MarkdownRendererProps) {
@@ -80,27 +80,9 @@ export default function MarkdownRenderer({ content, annotations = [] }: Markdown
                             const annotation = annotations[index];
                             if (annotation) {
                                 return (
-                                    <Popover
-                                        trigger={props.children}
-                                        content={
-                                            <div className="space-y-3 font-sans">
-                                                <div className="text-xs font-bold text-zinc-400 uppercase tracking-widest">Knowledge Card</div>
-                                                <div className="font-semibold text-zinc-900 dark:text-zinc-100">
-                                                    {annotation.question}
-                                                </div>
-                                                <div className="text-sm text-zinc-600 dark:text-zinc-300 leading-relaxed">
-                                                    <ReactMarkdown>{annotation.answer}</ReactMarkdown>
-                                                </div>
-                                                {annotation.tags && (
-                                                    <div className="flex gap-2 pt-2">
-                                                        {annotation.tags.map(tag => (
-                                                            <span key={tag} className="text-xs bg-zinc-100 dark:bg-zinc-800 px-2 py-1 rounded text-zinc-500">#{tag}</span>
-                                                        ))}
-                                                    </div>
-                                                )}
-                                            </div>
-                                        }
-                                    />
+                                    <Annotation annotation={annotation}>
+                                        {props.children}
+                                    </Annotation>
                                 );
                             }
                         }
