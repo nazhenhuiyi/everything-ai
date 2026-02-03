@@ -1,11 +1,12 @@
+
 import fs from 'fs';
 import path from 'path';
 import matter from 'gray-matter';
 
-const docsDirectory = path.join(process.cwd(), 'everything-docs');
+const archiveDirectory = path.join(process.cwd(), 'archive');
 
-export function getDocSlugs() {
-  if (!fs.existsSync(docsDirectory)) {
+export function getArchiveSlugs() {
+  if (!fs.existsSync(archiveDirectory)) {
     return [];
   }
 
@@ -19,19 +20,21 @@ export function getDocSlugs() {
               }
           } else {
               if (file.endsWith('.md')) {
-                  arrayOfFiles.push(path.relative(docsDirectory, fullPath));
+                  arrayOfFiles.push(path.relative(archiveDirectory, fullPath));
               }
           }
       });
       return arrayOfFiles;
   };
 
-  return getAllFiles(docsDirectory).map(file => file.replace(/\.md$/, ''));
+  return getAllFiles(archiveDirectory).map(file => {
+      // Split by separator to get path segments
+      return file.replace(/\.md$/, '').split(path.sep);
+  });
 }
 
-export function getDocBySlug(slug: string) {
-  // slug can be "military/aircraft-carrier"
-  const fullPath = path.join(docsDirectory, `${slug}.md`);
+export function getArchiveBySlug(slug: string[]) {
+  const fullPath = path.join(archiveDirectory, ...slug) + '.md';
   
   if (!fs.existsSync(fullPath)) {
       return null;
@@ -49,7 +52,7 @@ export function getDocBySlug(slug: string) {
   }
 
   return {
-    slug,
+    slug: slug.join('/'),
     meta: data,
     content,
   };
@@ -64,14 +67,18 @@ export interface Annotation {
     created_at?: string;
 }
 
-export function getAnnotationsForDoc(slug: string): Annotation[] {
+export function getAnnotationsForArchive(slug: string[]): Annotation[] {
     const annotations: Annotation[] = [];
-    const currentDocAbsPath = path.join(docsDirectory, `${slug}.md`);
+    const currentDocAbsPath = path.join(archiveDirectory, ...slug) + '.md';
 
     // Define directories to check
+    // We check:
+    // 1. archive/annotations (Global - if exists)
+    // 2. The local 'annotations' folder in the same directory as the doc
+    
     const dirsToCheck = [
-        path.join(docsDirectory, 'annotations'), // Global
-        path.join(path.dirname(currentDocAbsPath), 'annotations') // Local
+        path.join(archiveDirectory, 'annotations'), 
+        path.join(path.dirname(currentDocAbsPath), 'annotations')
     ];
 
     // Deduplicate directories
@@ -91,9 +98,11 @@ export function getAnnotationsForDoc(slug: string): Annotation[] {
 
             // Check if this annotation belongs to the current doc
             let isMatch = false;
+            // Strict path match or filename match
             if (data.source_doc === currentDocAbsPath) {
                 isMatch = true;
             } else if (data.source_doc && path.basename(data.source_doc) === path.basename(currentDocAbsPath)) {
+                 // Weak match by filename, be careful if duplicates exist
                  isMatch = true;
             }
 
@@ -147,8 +156,8 @@ export function getAnnotationsForDoc(slug: string): Annotation[] {
     return annotations;
 }
 
-export function getAllDocs() {
-  const slugs = getDocSlugs();
-  const docs = slugs.map((slug) => getDocBySlug(slug)).filter((doc) => doc !== null);
-  return docs;
+export function getAllArchives() {
+  const slugArrays = getArchiveSlugs();
+  const archives = slugArrays.map((slugArray) => getArchiveBySlug(slugArray)).filter((doc) => doc !== null);
+  return archives;
 }

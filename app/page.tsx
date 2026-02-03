@@ -57,7 +57,7 @@ export default function Home() {
                 <div className="mt-8 relative inline-block group">
                   <div className="absolute inset-0 bg-neon-blue translate-x-2 translate-y-2 transition-transform group-hover:translate-x-1 group-hover:translate-y-1"></div>
                   <Link
-                    href="/docs"
+                    href="/archive"
                     className="relative z-10 inline-block border-2 border-zinc-900 bg-white px-10 py-4 text-sm font-bold uppercase tracking-widest hover:bg-zinc-900 hover:text-white transition-colors dark:border-zinc-100 dark:bg-zinc-950 dark:hover:bg-zinc-100 dark:hover:text-zinc-900"
                   >
                     立即进入探索 (Enter Archive)
@@ -79,15 +79,15 @@ export default function Home() {
             <ul className="space-y-6">
               <li className="group">
                 <span className="text-[10px] block mb-1 opacity-50 uppercase tracking-widest group-hover:text-neon-blue transition-colors">01. Physics</span>
-                <Link href="/docs/airplane" className="text-lg font-bold group-hover:underline">飞行的秘密：大飞机为什么能飞起来？</Link>
+                <Link href="/archive/everything-docs/tech/airplane" className="text-lg font-bold group-hover:underline">飞行的秘密：大飞机为什么能飞起来？</Link>
               </li>
               <li className="group border-t border-zinc-700 pt-6 dark:border-zinc-300">
                 <span className="text-[10px] block mb-1 opacity-50 uppercase tracking-widest group-hover:text-vivid-pink transition-colors">02. Engineering</span>
-                <Link href="/docs/space-station" className="text-lg font-bold group-hover:underline">太空堡垒：空间站是如何建造的？</Link>
+                <Link href="/archive/everything-docs/tech/space-station" className="text-lg font-bold group-hover:underline">太空堡垒：空间站是如何建造的？</Link>
               </li>
               <li className="group border-t border-zinc-700 pt-6 dark:border-zinc-300">
                 <span className="text-[10px] block mb-1 opacity-50 uppercase tracking-widest group-hover:text-cyber-yellow transition-colors">03. Oceanography</span>
-                <Link href="/docs/submarine" className="text-lg font-bold group-hover:underline">深海巨兽：潜水艇在万米深处的生存之道</Link>
+                <Link href="/archive/everything-docs/tech/submarine" className="text-lg font-bold group-hover:underline">深海巨兽：潜水艇在万米深处的生存之道</Link>
               </li>
             </ul>
           </div>

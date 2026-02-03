@@ -1,28 +1,30 @@
+
 import Link from 'next/link';
 import TableOfContents from '@/components/markdown/TableOfContents';
 import GithubSlugger from 'github-slugger';
 import React from 'react';
 import MarkdownRenderer from '@/components/markdown/MarkdownRenderer';
-import { getDocBySlug, getDocSlugs, getAnnotationsForDoc } from '@/lib/docs';
+import { getArchiveBySlug, getArchiveSlugs, getAnnotationsForArchive } from '@/lib/archive';
 import { Metadata } from 'next';
 
 export async function generateStaticParams() {
-    const slugs = getDocSlugs();
+    const slugs = getArchiveSlugs();
     return slugs.map((slug) => ({
-        slug: slug.split('/'),
+        slug: slug, // slug is already string[] from getArchiveSlugs in lib/archive.ts?? Wait check lib/archive.ts
     }));
 }
 
 export async function generateMetadata({ params }: { params: Promise<{ slug: string[] }> }): Promise<Metadata> {
     const { slug } = await params;
-    const slugString = slug.join('/');
-    const doc = getDocBySlug(slugString);
+    const doc = getArchiveBySlug(slug);
 
     if (!doc) {
         return {
             title: '未找到文档',
         };
     }
+
+    const slugString = slug.join('/');
 
     return {
         title: doc.meta.title || slugString.replace(/-/g, ' '),
@@ -35,19 +37,17 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
     };
 }
 
-export default async function DocPage({ params }: { params: Promise<{ slug: string[] }> }) {
+export default async function ArchiveDocPage({ params }: { params: Promise<{ slug: string[] }> }) {
     const { slug } = await params;
-    const slugString = slug.join('/');
-    const doc = getDocBySlug(slugString);
-    const annotations = getAnnotationsForDoc(slugString);
-
-
+    const doc = getArchiveBySlug(slug);
+    // getAnnotationsForArchive expects string[], which matches our slug
+    const annotations = getAnnotationsForArchive(slug);
 
     if (!doc) {
         return (
             <div className="max-w-4xl mx-auto py-20 px-4 text-center">
                 <h1 className="text-3xl font-serif text-red-500 mb-4">Document not found</h1>
-                <Link href="/docs" className="text-gray-600 hover:text-black dark:text-gray-400 dark:hover:text-white transition-colors">← Back to Library</Link>
+                <Link href="/archive" className="text-gray-600 hover:text-black dark:text-gray-400 dark:hover:text-white transition-colors">← Back to Archives</Link>
             </div>
         );
     }
@@ -67,8 +67,8 @@ export default async function DocPage({ params }: { params: Promise<{ slug: stri
             {/* Navigation Bar */}
             <nav className="border-b border-zinc-200 dark:border-zinc-800 sticky top-0 bg-[#fcfbf9]/80 dark:bg-zinc-950/80 backdrop-blur-md z-50">
                 <div className="max-w-screen-xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
-                    <Link href="/docs" className="text-sm font-medium tracking-wide text-zinc-500 hover:text-zinc-900 dark:text-zinc-400 dark:hover:text-zinc-50 transition-colors uppercase">
-                        Other Stories
+                    <Link href="/archive" className="text-sm font-medium tracking-wide text-zinc-500 hover:text-zinc-900 dark:text-zinc-400 dark:hover:text-zinc-50 transition-colors uppercase">
+                        All Archives
                     </Link>
                     <div className="font-serif italic text-xl">Everything AI</div>
                     <div className="w-20"></div> {/* Spacer for centering */}
