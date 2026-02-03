@@ -34,7 +34,8 @@ export function getArchiveSlugs() {
 }
 
 export function getArchiveBySlug(slug: string[]) {
-  const fullPath = path.join(archiveDirectory, ...slug) + '.md';
+  const decodedSlug = slug.map(part => decodeURIComponent(part));
+  const fullPath = path.join(archiveDirectory, ...decodedSlug) + '.md';
   
   if (!fs.existsSync(fullPath)) {
       return null;
@@ -69,7 +70,8 @@ export interface Annotation {
 
 export function getAnnotationsForArchive(slug: string[]): Annotation[] {
     const annotations: Annotation[] = [];
-    const currentDocAbsPath = path.join(archiveDirectory, ...slug) + '.md';
+    const decodedSlug = slug.map(part => decodeURIComponent(part));
+    const currentDocAbsPath = path.join(archiveDirectory, ...decodedSlug) + '.md';
 
     // Define directories to check
     // We check:

@@ -72,7 +72,7 @@ Task: 当用户输入一个词条时，你需要经历一个严密的“思考-�
 
 ### Output Instruction
 
-请将生成的内容保存到 `everything-docs` 目录下的合适子目录中（例如 `everything-docs/tech/`, `everything-docs/science/` 等），文件名需英文化，例如 `bicycle/content.md`。
+请将生成的内容保存到 `archive/everything-docs` 目录下的合适子目录中（例如 `archive/everything-docs/tech/`, `archive/everything-docs/science/` 等），文件名需英文化，例如 `bicycle/content.md`。
 
 **CRITICAL: Format Requirements**
 1.  **YAML Frontmatter**: 文件开头必须包含 metadata。
